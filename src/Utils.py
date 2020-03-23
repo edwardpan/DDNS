@@ -9,28 +9,30 @@ Created By Martin Huang on 2018/5/19
 '''
 import IpGetter
 import platform
-import  subprocess
+import subprocess
 import json
 from AcsClientSingleton import AcsClientSing
-from CommonRequestSingleton import CommonRequestSing
+from aliyunsdkcore.request import CommonRequest
+
+
 class Utils:
 
     #获取真实公网IP
     def getRealIP():
-        url = IpGetter.getIpPage();
+        url = IpGetter.getIpPage()
         ip = IpGetter.getRealIp(url)
         return ip
 
     #获取真实公网IPv6
     def getRealIPv6():
-        url = IpGetter.getIpPageV6();
+        url = IpGetter.getIpPageV6()
         ip = IpGetter.getRealIpV6(url)
         return ip
 
-    #获取二级域名的RecordId
+    #获取二级域名的RecordId和当前解析的IP
     def getRecordId(domain):
         client = Utils.getAcsClient()
-        request = Utils.getCommonRequest()
+        request = CommonRequest()
         request.set_domain('alidns.aliyuncs.com')
         request.set_version('2015-01-09')
         request.set_action_name('DescribeDomainRecords')
@@ -40,11 +42,7 @@ class Utils:
         records = jsonObj["DomainRecords"]["Record"]
         for each in records:
             if each["RR"] == domain:
-                return each["RecordId"]
-
-    #获取CommonRequest
-    def getCommonRequest():
-        return CommonRequestSing.getInstance()
+                return each["RecordId"], each["Value"]
 
     #获取AcsClient
     def getAcsClient():
